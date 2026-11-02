@@ -1,0 +1,44 @@
+name: Automated 1-Minute Cron Scanner
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  repository_dispatch:
+    types: [cron, pulse]
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force send'
+        required: false
+        default: 'false'
+
+jobs:
+  run-cron:
+    name: Execute News & Market Pulse Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Private Bot Code Securely
+        uses: actions/checkout@v4
+        with:
+          repository: 'derottk/forex-crypto-news-bot'
+          token: ${{ secrets.BOT_PAT }}
+          path: 'bot'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Dependencies
+        working-directory: 'bot'
+        run: npm ci
+
+      - name: Execute Telegram Cloud Cron Scan
+        working-directory: 'bot'
+        env:
+          TGCLOUD_TOKEN: ${{ secrets.TGCLOUD_TOKEN }}
+        run: |
+          FORCE="${{ github.event.inputs.force == 'true' || github.event.client_payload.force == true }}"
+          echo "Scanning economic news and market pulses on Telegram Cloud (force=$FORCE)..."
+          npx tgcloud run endpoints/cron "{\"force\": $FORCE}"
