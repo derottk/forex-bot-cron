@@ -1,2 +1,3 @@
-# forex-bot-cron
-Automated 1-minute cron runner for Forex &amp; Crypto News Bot
+# Forex & Crypto Bot Cron Runner
+
+High-frequency automated scheduler for macroeconomic releases and market pulse broadcasts.
